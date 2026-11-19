@@ -5,7 +5,7 @@ public class GameManager : MonoBehaviour
 {
     //The Tetrominos are those colourful blocks that come in different shapes/arrangements.
     //Tetrominos and Grid code.
-    public GameObject[] Tetrominos;
+    public GameObject[] Tetrominoes;
     public float movementFrequency = 0.8f;
     private float passedTime = 0;
     private GameObject currentTetromino;
@@ -90,8 +90,8 @@ public class GameManager : MonoBehaviour
 
     void SpawnTetromino()
     {
-        int index = Random.Range(0, Tetrominos.Length);
-        currentTetromino = Instantiate(Tetrominos[index], new Vector3(1.5f, 5.5f, 0), Quaternion.identity);
+        int index = Random.Range(0, Tetrominoes.Length);
+        currentTetromino = Instantiate(Tetrominoes[index], new Vector3(1.5f, 5.5f, 0), Quaternion.identity);
     }
 
     void MoveTetromino(Vector3 direction)
