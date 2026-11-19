@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class GameManager : MonoBehaviour
 {
@@ -11,7 +12,8 @@ public class GameManager : MonoBehaviour
 
     //Touchscreen controls code.
     private Vector2 startPos;
-    public float swipeLimit = 50f;
+    public float swipeLimit = 75f;
+    private bool isSwiping = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -29,45 +31,61 @@ public class GameManager : MonoBehaviour
             MoveTetromino(Vector3.down);
         }
 
-        void UserInput()
+        UserInput();
+    }
+
+    void UserInput()
+    {
+        if (Input.touchCount == 0) return;
+
+        Touch touch = Input.GetTouch(0);
+
+        if (touch.phase == TouchPhase.Began)
         {
-            if (Input.touchCount == 0) return;
-
-            Touch touch = Input.GetTouch(0);
-
-            if (touch.phase == TouchPhase.Began)
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject(touch.fingerId))
             {
-                startPos = touch.position;
+                isSwiping = false;
+                return;
             }
-            else if (touch.phase == TouchPhase.Ended)
-            {
-                Vector2 swipe = touch.position - startPos;
 
-                //Tap = rotate Tetrominos by 90 degrees.
-                if (swipe.magnitude < swipeLimit)
-                {
-                    currentTetromino.transform.Rotate(0, 0, -90);
-                }
-                else if (Mathf.Abs(swipe.x) > Mathf.Abs(swipe.y))
-                {
-                    if (swipe.x > 0)
-                    {
-                        //Swipe right = move Tetrominos right by how much swiped.
-                        MoveTetromino(Vector3.right);
-                    }
-                    else
-                    {
-                        //Swipe left = move Tetrominos left by how much swiped.
-                        MoveTetromino(Vector3.left);
-                    }
-                }
-                else if (swipe.y < 0)
-                {
-                    //Swipe down = move Tetrominos down by how much swiped.
-                    MoveTetromino(Vector3.down);
-                }
-            }
+            isSwiping = true;
+            startPos = touch.position;
         }
+        else if (touch.phase == TouchPhase.Ended)
+        {
+            Vector2 swipe = touch.position - startPos;
+
+            //Tap = rotate Tetrominos by 90 degrees.
+            if (swipe.magnitude < swipeLimit)
+            {
+                RotateTetromino();
+            }
+            else if (Mathf.Abs(swipe.x) > Mathf.Abs(swipe.y))
+            {
+                if (swipe.x > 0)
+                {
+                    //Swipe right = move Tetrominos right by how much swiped.
+                    MoveTetromino(Vector3.right);
+                }
+                else
+                {
+                    //Swipe left = move Tetrominos left by how much swiped.
+                    MoveTetromino(Vector3.left);
+                }
+            }
+            else if (swipe.y < 0)
+            {
+                //Swipe down = move Tetrominos down by how much swiped.
+                MoveTetromino(Vector3.down);
+            }
+
+            isSwiping = false;
+        }
+    }
+
+    void RotateTetromino()
+    {
+        currentTetromino.transform.Rotate(0, 0, -90);
     }
 
     void SpawnTetromino()
