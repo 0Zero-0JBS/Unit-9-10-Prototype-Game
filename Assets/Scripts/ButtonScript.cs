@@ -8,7 +8,7 @@ public class ButtonScript : MonoBehaviour
 {
     [Header("Game's Audio Settings")]
     public AudioSource audioSource;
-    public AudioClip clickSound;
+    public AudioClip pressedSound;
     public bool isButtonSelected = false;
     private Selectable cacheSelectable;
 
@@ -24,10 +24,10 @@ public class ButtonScript : MonoBehaviour
 
     public void PlayClickSound()
     {
-        if (clickSound != null)
+        if (pressedSound != null)
         {
-            if (audioSource != null) audioSource.PlayOneShot(clickSound);
-            else if (AudioManagerScript.Instance != null) AudioManagerScript.Instance.PlaySFX(clickSound);
+            if (audioSource != null) audioSource.PlayOneShot(pressedSound);
+            else if (AudioManager.Instance != null) AudioManager.Instance.PlaySFX(pressedSound);
         }
     }
 
