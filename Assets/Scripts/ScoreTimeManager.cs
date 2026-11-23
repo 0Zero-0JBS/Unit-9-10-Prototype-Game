@@ -94,7 +94,7 @@ public class ScoreTimeManager : MonoBehaviour
         if (highScoreText != null)
         {
             highScoreText.gameObject.SetActive(true);
-            highScoreText.text = "HIGH SCORE: " + highScore.ToString("0000");
+            highScoreText.text = "HIGH SCORE: " + highScore.ToString("000000");
         }
 
         if (bestTimeText != null)
@@ -110,23 +110,25 @@ public class ScoreTimeManager : MonoBehaviour
     {
         if (scoreText != null)
         {
-            scoreText.text = "SCORE: " + currentScore.ToString("0000");
+            scoreText.text = "SCORE: " + currentScore.ToString("000000");
         }
     }
 
     void UpdateTimerDisplay()
     {
         if (timerText == null) return;
-        int minutes = Mathf.FloorToInt(elapsedTime / 60);
+        int hours = Mathf.FloorToInt(elapsedTime / 3600);
+        int minutes = Mathf.FloorToInt(elapsedTime / 60) % 60;
         int seconds = Mathf.FloorToInt(elapsedTime % 60);
-        timerText.text = $"{minutes:00}:{seconds:00}";
+        timerText.text = $"TIME: {hours:00}:{minutes:00}:{seconds:00}";
     }
 
     void UpdateBestTimeDisplay()
     {
         if (bestTimeText == null) return;
-        int minutes = Mathf.FloorToInt(bestTime / 60);
+        int hours = Mathf.FloorToInt(bestTime / 3600);
+        int minutes = Mathf.FloorToInt(bestTime / 60) % 60;
         int seconds = Mathf.FloorToInt(bestTime % 60);
-        bestTimeText.text = $"BEST TIME: {minutes:00}:{seconds:00}";
+        bestTimeText.text = $"BEST TIME: {hours:00}:{minutes:00}:{seconds:00}";
     }
 }

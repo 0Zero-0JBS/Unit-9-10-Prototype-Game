@@ -3,7 +3,11 @@ using UnityEngine;
 public class GridScript : MonoBehaviour
 {
     public Transform[,] grid = new Transform [10, 20];
-    
+
+    [Header("Grid Alignment")]
+    public Vector2 gridOrigin = new Vector2(-1.93f, -4.23f);
+    public float cellSize = 0.3f;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -17,7 +21,9 @@ public class GridScript : MonoBehaviour
     }
     public Vector2Int Round(Vector3 pos)
     {
-        return new Vector2Int(Mathf.RoundToInt(pos.x), Mathf.RoundToInt(pos.y));
+        int x = Mathf.RoundToInt((pos.x - gridOrigin.x) / cellSize);
+        int y = Mathf.RoundToInt((pos.y - gridOrigin.y) / cellSize);
+        return new Vector2Int(x, y);
     }
 
     public bool IsInsideBorder(Vector2Int pos)
