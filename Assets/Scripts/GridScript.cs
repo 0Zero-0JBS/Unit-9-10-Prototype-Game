@@ -6,7 +6,7 @@ public class GridScript : MonoBehaviour
 
     [Header("Grid Alignment")]
     public Vector2 gridOrigin = new Vector2(-1.93f, -4.23f);
-    public float cellSize = 0.3f;
+    public float cellSize = 0.34f;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -19,6 +19,7 @@ public class GridScript : MonoBehaviour
     {
         
     }
+
     public Vector2Int Round(Vector3 pos)
     {
         int x = Mathf.RoundToInt((pos.x - gridOrigin.x) / cellSize);
@@ -28,7 +29,7 @@ public class GridScript : MonoBehaviour
 
     public bool IsInsideBorder(Vector2Int pos)
     {
-        return pos.x >= 0 && pos.x < 10 && pos.y >= 0;
+        return pos.x >= 0 && pos.x < 10 && pos.y >= 0 && pos.y < 20;
     }
 
     public void UpdateGrid(Transform tetromino)
@@ -38,10 +39,37 @@ public class GridScript : MonoBehaviour
                 if (grid[x, y] != null && grid[x, y].parent == tetromino)
                     grid[x, y] = null;
 
-        foreach (Transform child in tetromino)
+        foreach (Transform block in tetromino)
         {
-            Vector2Int pos = Round(child.position);
-            if (pos.y < 20) grid[pos.x, pos.y] = child;
+            Vector2Int pos = Round(block.position);
+            if (pos.y < 20) grid[pos.x, pos.y] = block;
         }
+    }
+
+    public Transform GetTransformAtGridPosition(Vector2Int pos)
+    {
+        if(pos.y > 20-1)
+        {
+            return null;
+        }
+        return grid[pos.x, pos.y];
+    }
+
+    public bool IsValidPosition(Transform tetromino)
+    {
+        foreach(Transform block in tetromino)
+        {
+            Vector2Int pos = Round(block.position);
+            if (!IsInsideBorder(pos))
+            {
+                return false;
+            }
+
+            if (GetTransformAtGridPosition(pos) != null && GetTransformAtGridPosition(pos).parent != tetromino)
+            {
+                return false;
+            }
+        }
+        return true;
     }
 }
