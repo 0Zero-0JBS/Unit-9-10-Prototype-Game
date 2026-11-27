@@ -22,18 +22,26 @@ public class GameManager : MonoBehaviour
     public GameObject gameOverPanel;
     public GameObject quitGamePanel;
     public GameObject gameReturnToMenuPanel;
+    public GameObject pauseButton;
     
     private MenuState currentMenuState = MenuState.None;
     private MenuState previousMenuState = MenuState.None;
 
     //The Tetrominos are those colourful blocks that come in different shapes/arrangements.
     //Tetrominos and Grid code.
-    public GameObject[] Tetrominoes;
+    [Header("Tetrominoes")]
+    public GameObject[] tetrominoes;
+    private GameObject currentTetromino;
+    private GameObject previewTetromino;
+
     public GridScript fromGridScript;
     public float movementFrequency = 0.8f;
     private float passedTime = 0;
-    private GameObject currentTetromino;
 
+    private bool gameStarted = false;
+
+    private Vector2 previewTetrominoPosition = new Vector2(1.9f, 1.5f);
+    
     //Touchscreen controls code.
     private Vector2 startPos;
     public float swipeLimit = 75f;
@@ -140,6 +148,7 @@ public class GameManager : MonoBehaviour
         gameOverPanel.SetActive(false);
         quitGamePanel.SetActive(false);
         gameReturnToMenuPanel.SetActive(false);
+        if (pauseButton != null) pauseButton.SetActive(false);
 
         if (currentMenuState == MenuState.PauseMenu || currentMenuState == MenuState.GameOver)
         {
@@ -151,11 +160,13 @@ public class GameManager : MonoBehaviour
         switch (currentMenuState)
         {
             case MenuState.None:
+                if (pauseButton != null) pauseButton.SetActive(true);
                 Time.timeScale = 1f;
                 previousMenuState = MenuState.None;
                 break;
 
             case MenuState.PauseMenu:
+                if (pauseButton != null) pauseButton.SetActive(true);
                 gamePauseMenu.SetActive(true);
                 Time.timeScale = 0f;
                 break;
@@ -190,21 +201,37 @@ public class GameManager : MonoBehaviour
 
     void SpawnTetromino()
     {
-        int index = Random.Range(0, Tetrominoes.Length);
-        GameObject prefab = Tetrominoes[index];
+        int index = Random.Range(0, tetrominoes.Length);
+        int previewIndex = Random.Range(0, tetrominoes.Length);
+        GameObject parentToSpawn = !gameStarted ? tetrominoes[index] : previewTetromino;
 
         // My grid cells (4, 18) converted to my 0.34 world coordinates
-        float spawnX = fromGridScript.gridOrigin.x + (4 * fromGridScript.cellSize);
+        float spawnX = fromGridScript.gridOrigin.x + (5 * fromGridScript.cellSize);
         float spawnY = fromGridScript.gridOrigin.y + (18 * fromGridScript.cellSize);
 
         // The Square Tetromin piece uses 0.17 half-cell offsets so shift it by 0.17
-        if (prefab.transform.childCount > 0 && Mathf.Approximately(Mathf.Abs(prefab.transform.GetChild(0).localPosition.x), 0.17f))
+        if (parentToSpawn.transform.childCount > 0 && Mathf.Abs(Mathf.Abs(parentToSpawn.transform.GetChild(0).localPosition.x) - 0.17f) < 0.01f)
         {
             spawnX += fromGridScript.cellSize * 0.5f;
             spawnY += fromGridScript.cellSize * 0.5f;
         }
 
-        currentTetromino = Instantiate(Tetrominoes[index], new Vector3(6f, 18f, 0), Quaternion.identity);
+        if (!gameStarted)
+        {
+            gameStarted = true;
+            currentTetromino = Instantiate(tetrominoes[index], new Vector3(spawnX, spawnY, 0), Quaternion.identity);
+            previewTetromino = Instantiate(tetrominoes[previewIndex], previewTetrominoPosition, Quaternion.identity);
+            previewTetromino.transform.localScale = new Vector3(0.5f, 0.5f, 1f);
+        }
+        else
+        {
+            previewTetromino.transform.localPosition = new Vector2(spawnX, spawnY);
+            currentTetromino = previewTetromino;
+            currentTetromino.transform.localScale = Vector3.one;
+
+            previewTetromino = Instantiate(tetrominoes[previewIndex], previewTetrominoPosition, Quaternion.identity);
+            previewTetromino.transform.localScale = new Vector3(0.5f, 0.5f, 1f);
+        }
 
         if (!IsValidPosition())
         {
@@ -223,7 +250,7 @@ public class GameManager : MonoBehaviour
 
             if(direction == Vector3.down)
             {
-                GetComponent<GridScript>().UpdateGrid(currentTetromino.transform);
+                fromGridScript.UpdateGrid(currentTetromino.transform);
                 CheckForLines();
                 SpawnTetromino();
             }
@@ -232,8 +259,6 @@ public class GameManager : MonoBehaviour
 
     bool IsValidPosition()
     {
-        GetComponent<GridScript>().IsValidPosition(currentTetromino.transform);
-
         foreach (Transform block in currentTetromino.transform)
         {
             Vector2Int pos = fromGridScript.Round(block.position);

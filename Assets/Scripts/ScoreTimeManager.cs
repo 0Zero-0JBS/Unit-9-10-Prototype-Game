@@ -27,8 +27,8 @@ public class ScoreTimeManager : MonoBehaviour
         if (Instance == null) { Instance = this; }
         else { Destroy(gameObject); return; }
 
-        highScore = PlayerPrefs.GetInt("HighScore", 0);
-        bestTime = PlayerPrefs.GetFloat("BestTime", 0f);
+        highScore = PlayerPrefs.GetInt("High Score", 0);
+        bestTime = PlayerPrefs.GetFloat("Best Time", 0f);
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -68,7 +68,7 @@ public class ScoreTimeManager : MonoBehaviour
         if (currentScore > highScore)
         {
             highScore = currentScore;
-            PlayerPrefs.SetInt("HighScore", highScore);
+            PlayerPrefs.SetInt("High Score", highScore);
             PlayerPrefs.Save();
         }
     }
@@ -81,14 +81,14 @@ public class ScoreTimeManager : MonoBehaviour
         if (currentScore > highScore)
         {
             highScore = currentScore;
-            PlayerPrefs.SetInt("HighScore", highScore);
+            PlayerPrefs.SetInt("High Score", highScore);
         }
 
         // Check Time Record (Best Time)
         if (elapsedTime > bestTime)
         {
             bestTime = elapsedTime;
-            PlayerPrefs.SetFloat("BestTime", bestTime);
+            PlayerPrefs.SetFloat("Best Time", bestTime);
         }
 
         if (highScoreText != null)
